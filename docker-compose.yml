@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  postgres: 
+    container_name: db
+    image: postgres:16-alpine
+    env_file:
+      - ./.env
+    environment:
+      - PG_GATA=/var/lib/postgresql/data
+    volumes:
+      - $HOME/docker/volumes/AAO_test_task:/var/lib/postgresql/data
+  scrapper:
+    container_name: scrapper
+    env_file:
+      - ./.env
+    build: 
+      context: ./scrapper
+      dockerfile: Dockerfile
+    volumes:
+      - ./scrapper:/scrapper:rw
+    depends_on:
+      - postgres
+  client:
+    container_name: client
+    build: 
+      context: ./client
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - ./client:/client:rw
+    expose:
+      - 3000
+    depends_on:
+      - nginx
+      - scrapper
+    restart: always
+  nginx:
+    container_name: proxy_nx
+    image: nginx:latest
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d:ro
+    restart: always

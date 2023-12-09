@@ -1,0 +1,13 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model currency {
+  createdAt DateTime @id(map: "Currency_pkey") @default(now())
+  rateFloat Float
+}
